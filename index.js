@@ -1,18 +1,5 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const fetch = require('node-fetch');
-const http = require('http'); // เพิ่มระบบสร้างเว็บ
-
-// --- ส่วนเว็บปลอม (หลอก Koyeb ว่าเราเป็นเว็บและสุขภาพดี) ---
-const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('Bot is Alive!'); // ส่งข้อความกลับไปบอกว่ายังไม่ตาย
-});
-// Koyeb จะส่งค่า PORT มาให้เรา ถ้าไม่มีให้ใช้ 8000
-const PORT = process.env.PORT || 8000;
-server.listen(PORT, () => {
-    console.log(`สร้างเว็บปลอมเพื่อหลอก Koyeb สำเร็จที่ Port ${PORT}`);
-});
-// ------------------------------------------------------
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
@@ -30,17 +17,27 @@ async function updatePrice() {
 
         if (!nxpcData.price) throw new Error("ดึงราคาจาก MEXC ไม่สำเร็จ");
 
-        const priceThb = (parseFloat(nxpcData.price) * usdtThb).toLocaleString('th-TH', { 
+        // คำนวณราคาเดิมก่อน (1 NXPC)
+        const rawPriceThb = parseFloat(nxpcData.price) * usdtThb;
+        
+        // เอามาคูณ 10 ตามที่พี่ต้องการ
+        const multipliedPrice = rawPriceThb * 10;
+
+        // แปลงเป็นตัวเลขที่มีลูกน้ำและทศนิยม 2 ตำแหน่ง
+        const formattedPrice = multipliedPrice.toLocaleString('th-TH', { 
             minimumFractionDigits: 2, maximumFractionDigits: 2 
         });
 
         const guild = await client.guilds.fetch(GUILD_ID);
         const botMember = await guild.members.fetchMe();
         
-        await botMember.setNickname(`NXPC: ฿${priceThb}`);
-        client.user.setActivity(`NXPC Price: ฿${priceThb}`, { type: 3 });
+        // อัปเดตชื่อบอทตามรูปแบบที่ต้องการ
+        await botMember.setNickname(`[NXPC] 1m = ${formattedPrice}`);
+        
+        // อัปเดตสถานะบอท (ตัวหนังสือเล็กๆ ด้านล่างชื่อ) ให้ล้อกันไปด้วย
+        client.user.setActivity(`1m = ${formattedPrice} THB`, { type: 3 }); 
 
-        console.log(`อัปเดตราคาสำเร็จ: ฿${priceThb}`);
+        console.log(`อัปเดตราคาสำเร็จ: [NXPC] 1m = ${formattedPrice}`);
     } catch (err) {
         console.error("เกิดข้อผิดพลาด:", err.message);
     }
@@ -49,7 +46,7 @@ async function updatePrice() {
 client.once('ready', () => {
     console.log(`บอทออนไลน์แล้ว! ชื่อ: ${client.user.tag}`);
     updatePrice();
-    setInterval(updatePrice, 60000); // อัปเดตทุก 1 นาที
+    setInterval(updatePrice, 60000); // วนลูปอัปเดตทุก 1 นาที
 });
 
 client.login(DISCORD_TOKEN);
