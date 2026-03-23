@@ -1,5 +1,17 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const fetch = require('node-fetch');
+const http = require('http'); // กลับมาใส่ระบบสร้างเว็บปลอม
+
+// --- ส่วนเว็บปลอม (หลอก Koyeb ว่าเราเป็นเว็บและสุขภาพดี) ---
+const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Bot is Alive!'); 
+});
+const PORT = process.env.PORT || 8000;
+server.listen(PORT, () => {
+    console.log(`สร้างเว็บปลอมเพื่อหลอก Koyeb สำเร็จที่ Port ${PORT}`);
+});
+// ------------------------------------------------------
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
@@ -20,10 +32,9 @@ async function updatePrice() {
         // คำนวณราคาเดิมก่อน (1 NXPC)
         const rawPriceThb = parseFloat(nxpcData.price) * usdtThb;
         
-        // เอามาคูณ 10 ตามที่พี่ต้องการ
+        // เอามาคูณ 10 ตามที่ต้องการ
         const multipliedPrice = rawPriceThb * 10;
 
-        // แปลงเป็นตัวเลขที่มีลูกน้ำและทศนิยม 2 ตำแหน่ง
         const formattedPrice = multipliedPrice.toLocaleString('th-TH', { 
             minimumFractionDigits: 2, maximumFractionDigits: 2 
         });
@@ -31,10 +42,8 @@ async function updatePrice() {
         const guild = await client.guilds.fetch(GUILD_ID);
         const botMember = await guild.members.fetchMe();
         
-        // อัปเดตชื่อบอทตามรูปแบบที่ต้องการ
+        // อัปเดตชื่อบอท
         await botMember.setNickname(`[NXPC] 1m = ${formattedPrice}`);
-        
-        // อัปเดตสถานะบอท (ตัวหนังสือเล็กๆ ด้านล่างชื่อ) ให้ล้อกันไปด้วย
         client.user.setActivity(`1m = ${formattedPrice} THB`, { type: 3 }); 
 
         console.log(`อัปเดตราคาสำเร็จ: [NXPC] 1m = ${formattedPrice}`);
@@ -46,7 +55,7 @@ async function updatePrice() {
 client.once('ready', () => {
     console.log(`บอทออนไลน์แล้ว! ชื่อ: ${client.user.tag}`);
     updatePrice();
-    setInterval(updatePrice, 60000); // วนลูปอัปเดตทุก 1 นาที
+    setInterval(updatePrice, 60000); 
 });
 
 client.login(DISCORD_TOKEN);
