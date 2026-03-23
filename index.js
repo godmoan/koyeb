@@ -46,7 +46,7 @@ async function updatePrice() {
         await botMember.setNickname(`[NXPC] 1m = ${formattedPrice}`);
         client.user.setActivity(`1m = ${formattedPrice} THB`, { type: 3 }); 
 
-        console.log(`อัปเดตราคาสำเร็จ: [NXPC] 1m = ${formattedPrice}`);
+        console.log(`อัปเดตราคาสำเร็จ: [NXPC] 1m = ${formattedPrice} บาท`);
     } catch (err) {
         console.error("เกิดข้อผิดพลาด:", err.message);
     }
