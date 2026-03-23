@@ -43,7 +43,7 @@ async function updatePrice() {
         const botMember = await guild.members.fetchMe();
         
         // อัปเดตชื่อบอท
-        await botMember.setNickname(`[NXPC] 1m = ${formattedPrice}`);
+        await botMember.setNickname(`[NXPC] 1m = ${formattedPrice} บาท`);
         client.user.setActivity(`1m = ${formattedPrice} THB`, { type: 3 }); 
 
         console.log(`อัปเดตราคาสำเร็จ: [NXPC] 1m = ${formattedPrice} บาท`);
